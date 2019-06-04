@@ -73,19 +73,6 @@ Node *new_node_num(int val) {
     return node;
 }
 
-Node *mul() {
-  Node *node = term();
-
-  for (;;) {
-    if (consume('*'))
-      node = new_node('*', node, term());
-    else if (consume('/'))
-      node = new_node('/', node, term());
-    else
-      return node;
-  }
-}
-
 Node *expr() {
     Node *node = mul();
 
@@ -97,6 +84,19 @@ Node *expr() {
         else
             return node;
     }
+}
+
+Node *mul() {
+  Node *node = term();
+
+  for (;;) {
+    if (consume('*'))
+      node = new_node('*', node, term());
+    else if (consume('/'))
+      node = new_node('/', node, term());
+    else
+      return node;
+  }
 }
 
 Node *term() {
@@ -146,32 +146,32 @@ void tokenize(char *p) {
 }
 
 void gen(Node *node) {
-  if (node->ty == ND_NUM) {
-    printf("  push %d\n", node->val);
-    return;
-  }
+    if (node->ty == ND_NUM) {
+        printf("  push %d\n", node->val);
+        return;
+    }
 
-  gen(node->lhs);
-  gen(node->rhs);
+    gen(node->lhs);
+    gen(node->rhs);
 
-  printf("  pop rdi\n");
-  printf("  pop rax\n");
+    printf("  pop rdi\n");
+    printf("  pop rax\n");
 
-  switch (node->ty) {
-  case '+':
-    printf("  add rax, rdi\n");
-    break;
-  case '-':
-    printf("  sub rax, rdi\n");
-    break;
-  case '*':
-    printf("  imul rdi\n");
-    break;
-  case '/':
-    printf("  cqo\n");
-    printf("  idiv rdi\n");
-  }
+    switch (node->ty) {
+    case '+':
+        printf("  add rax, rdi\n");
+        break;
+    case '-':
+        printf("  sub rax, rdi\n");
+        break;
+    case '*':
+        printf("  imul rdi\n");
+        break;
+    case '/':
+        printf("  cqo\n");
+        printf("  idiv rdi\n");
+    }
 
-  printf("  push rax\n");
+    printf("  push rax\n");
 }
 
